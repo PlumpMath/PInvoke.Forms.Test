@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using PInvoke;
+using static PInvoke.User32;
 
 namespace ConsoleApplication1
 {
@@ -16,24 +17,141 @@ namespace ConsoleApplication1
             DialogProc lpDialogFunc,
             IntPtr lParamInit);
 
+        /// <summary>
+        ///     Retrieves a message from the calling thread's message queue. The function dispatches incoming sent messages until a
+        ///     posted message is available for retrieval.
+        ///     <para>
+        ///         Unlike <see cref="GetMessage" />, the <see cref="PeekMessage" /> function does not wait for a message to be
+        ///         posted before returning.
+        ///     </para>
+        /// </summary>
+        /// <param name="lpMsg">A pointer to an <see cref="MSG" /> structure that receives message information.</param>
+        /// <param name="hWnd">
+        ///     A handle to the window whose messages are to be retrieved. The window must belong to the current thread.
+        ///     <para>
+        ///         If hWnd is <see cref="IntPtr.Zero" />, PeekMessage retrieves messages for any window that belongs to the
+        ///         current thread, and any messages on the current thread's message queue whose hwnd value is NULL (see the MSG
+        ///         structure). Therefore if hWnd is <see cref="IntPtr.Zero" />, both window messages and thread messages are
+        ///         processed.
+        ///     </para>
+        ///     <para>
+        ///         If hWnd is -1, PeekMessage retrieves only messages on the current thread's message queue whose hwnd value is
+        ///         NULL, that is, thread messages as posted by <see cref="PostMessage" /> (when the hWnd parameter is
+        ///         <see cref="IntPtr.Zero" />) or
+        ///         <see cref="PostThreadMessage" />.
+        ///     </para>
+        /// </param>
+        /// <param name="wMsgFilterMin">
+        ///     <para>
+        ///         The value of the first message in the range of messages to be examined. Use
+        ///         <see cref="WindowMessage.WM_KEYFIRST" /> to specify the first keyboard message or
+        ///         <see cref="WindowMessage.WM_MOUSEFIRST" /> to specify the first mouse message.
+        ///     </para>
+        ///     <para>
+        ///         If wMsgFilterMin and wMsgFilterMax are both <see cref="WindowMessage.WM_NULL" />, PeekMessage returns all
+        ///         available messages (that is, no range filtering is performed).
+        ///     </para>
+        /// </param>
+        /// <param name="wMsgFilterMax">
+        ///     <para>
+        ///         The value of the last message in the range of messages to be examined. Use
+        ///         <see cref="WindowMessage.WM_KEYLAST" /> to specify the last keyboard message or
+        ///         <see cref="WindowMessage.WM_MOUSELAST" /> to specify the last mouse message.
+        ///     </para>
+        ///     <para>
+        ///         If wMsgFilterMin and wMsgFilterMax are both <see cref="WindowMessage.WM_NULL" />, PeekMessage returns all
+        ///         available messages (that is, no range filtering is performed).
+        ///     </para>
+        /// </param>
+        /// <returns>
+        ///     If the function retrieves a message other than <see cref="WindowMessage.WM_QUIT" />, the return value is nonzero.
+        ///     <para>If the function retrieves the <see cref="WindowMessage.WM_QUIT" /> message, the return value is zero.</para>
+        ///     <para>
+        ///         If there is an error, the return value is -1. For example, the function fails if <paramref name="hWnd" /> is
+        ///         an invalid window handle or <paramref name="lpMsg" /> is an invalid pointer. To get extended error information,
+        ///         call <see cref="Kernel32.GetLastError" />.
+        ///     </para>
+        /// </returns>
         [DllImport(nameof(User32), SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool GetMessage(
+        public static extern int GetMessage(
             MSG* lpMsg,
             IntPtr hWnd,
-            int wMsgFilterMin,
-            int wMsgFilterMax);
+            WindowMessage wMsgFilterMin,
+            WindowMessage wMsgFilterMax);
 
+        /// <summary>
+        ///     Dispatches incoming sent messages, checks the thread message queue for a posted message, and retrieves the message
+        ///     (if any exist).
+        /// </summary>
+        /// <param name="lpMsg">A pointer to an <see cref="MSG" /> structure that receives message information.</param>
+        /// <param name="hWnd">
+        ///     A handle to the window whose messages are to be retrieved. The window must belong to the current thread.
+        ///     <para>
+        ///         If hWnd is <see cref="IntPtr.Zero" />, PeekMessage retrieves messages for any window that belongs to the
+        ///         current thread, and any messages on the current thread's message queue whose hwnd value is NULL (see the MSG
+        ///         structure). Therefore if hWnd is <see cref="IntPtr.Zero" />, both window messages and thread messages are
+        ///         processed.
+        ///     </para>
+        ///     <para>
+        ///         If hWnd is -1, PeekMessage retrieves only messages on the current thread's message queue whose hwnd value is
+        ///         NULL, that is, thread messages as posted by <see cref="PostMessage" /> (when the hWnd parameter is
+        ///         <see cref="IntPtr.Zero" />) or
+        ///         <see cref="PostThreadMessage" />.
+        ///     </para>
+        /// </param>
+        /// <param name="wMsgFilterMin">
+        ///     <para>
+        ///         The value of the first message in the range of messages to be examined. Use
+        ///         <see cref="WindowMessage.WM_KEYFIRST" /> to specify the first keyboard message or
+        ///         <see cref="WindowMessage.WM_MOUSEFIRST" /> to specify the first mouse message.
+        ///     </para>
+        ///     <para>
+        ///         If wMsgFilterMin and wMsgFilterMax are both <see cref="WindowMessage.WM_NULL" />, PeekMessage returns all
+        ///         available messages (that is, no range filtering is performed).
+        ///     </para>
+        /// </param>
+        /// <param name="wMsgFilterMax">
+        ///     <para>
+        ///         The value of the last message in the range of messages to be examined. Use
+        ///         <see cref="WindowMessage.WM_KEYLAST" /> to specify the last keyboard message or
+        ///         <see cref="WindowMessage.WM_MOUSELAST" /> to specify the last mouse message.
+        ///     </para>
+        ///     <para>
+        ///         If wMsgFilterMin and wMsgFilterMax are both <see cref="WindowMessage.WM_NULL" />, PeekMessage returns all
+        ///         available messages (that is, no range filtering is performed).
+        ///     </para>
+        /// </param>
+        /// <param name="wRemoveMsg">Specifies how messages are to be handled</param>
+        /// <returns>
+        ///     If a message is available, the return value is true.
+        ///     <para>If no messages are available, the return value is false.</para>
+        /// </returns>
         [DllImport(nameof(User32), SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool PeekMessage(
             MSG* lpMsg,
             IntPtr hWnd,
-            int wMsgFilterMin,
-            int wMsgFilterMax,
+            WindowMessage wMsgFilterMin,
+            WindowMessage wMsgFilterMax,
             PeekMessageRemoveFlags wRemoveMsg);
 
-        [DllImport(nameof(User32), SetLastError = true)]
+        /// <summary>
+        ///     Calls the default window procedure to provide default processing for any window messages that an application does
+        ///     not process. This function ensures that every message is processed. DefWindowProc is called with the same
+        ///     parameters received by the window procedure.
+        /// </summary>
+        /// <param name="hWnd">A handle to the window procedure that received the message.</param>
+        /// <param name="Msg">The message.</param>
+        /// <param name="wParam">
+        ///     Additional message information. The content of this parameter depends on the value of the
+        ///     <paramref name="Msg" /> parameter.
+        /// </param>
+        /// <param name="lParam">
+        ///     Additional message information. The content of this parameter depends on the value of the
+        ///     <paramref name="Msg" /> parameter.
+        /// </param>
+        /// <returns>The return value is the result of the message processing and depends on the message.</returns>
+        [DllImport(nameof(User32))]
         public static extern IntPtr DefWindowProc(
             IntPtr hWnd,
             WindowMessage Msg,

@@ -29,22 +29,26 @@ namespace ConsoleApplication1
             DialogProc lpDlgProc,
             IntPtr dwInitParam)
         {
-            IntPtr hdlg;
             var hrsrc = FindResource(hinst, MAKEINTRESOURCE(iTemplate), RT_DIALOG).Win32ThrowIfZero();
             var hglob = LoadResource(hinst, hrsrc).Win32ThrowIfZero();
-            var pTemplate = LockResource(hglob); // fixed 1pm
+            var pTemplate = LockResource(hglob);
             if (pTemplate == null)
             {
                 throw new Win32Exception();
             }
 
-            hdlg = CreateDialogIndirectParam(hinst,
-                (DLGTEMPLATE*) pTemplate, hwndParent, lpDlgProc,
+            return CreateDialogIndirectParam(hinst,
+                (DLGTEMPLATE*)pTemplate, hwndParent, lpDlgProc,
                 dwInitParam);
-            return hdlg;
         }
 
         private static void Main(string[] args)
+        {
+            CreateAndShowDialog();
+            MessagePump();
+        }
+
+        private static void CreateAndShowDialog()
         {
             var window = CreateDialogParam(SafeLibraryHandle.Null, 101, IntPtr.Zero, LpDlgProc, IntPtr.Zero);
             if (window == IntPtr.Zero)
@@ -52,16 +56,25 @@ namespace ConsoleApplication1
                 throw new Win32Exception();
             }
             ShowWindow(window, WindowShowStyle.SW_SHOWDEFAULT);
+        }
 
+        private static void MessagePump()
+        {
             MSG msg;
-            while (GetMessage(&msg, IntPtr.Zero, 0, 0)) {
+            int bRet;
+            while ((bRet = GetMessage(&msg, IntPtr.Zero, 0, 0)) != 0)
+            {
+                if (bRet == -1)
+                {
+                    throw new Win32Exception();
+                }
+
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
             }
         }
 
-        static readonly IntPtr TRUE = new IntPtr(1);
-        static readonly IntPtr FALSE = new IntPtr(0);
+        static readonly IntPtr TRUE = (IntPtr)1;
 
         private static IntPtr LpDlgProc(IntPtr hwndDlg, WindowMessage uMsg, IntPtr wParam, IntPtr lParam)
         {
