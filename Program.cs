@@ -44,11 +44,11 @@ namespace ConsoleApplication1
 
         private static void Main(string[] args)
         {
-            CreateAndShowDialog();
-            MessagePump();
+            var window = CreateAndShowDialog();
+            MessagePump(window);
         }
 
-        private static void CreateAndShowDialog()
+        private static IntPtr CreateAndShowDialog()
         {
             var window = CreateDialogParam(SafeLibraryHandle.Null, 101, IntPtr.Zero, LpDlgProc, IntPtr.Zero);
             if (window == IntPtr.Zero)
@@ -56,9 +56,10 @@ namespace ConsoleApplication1
                 throw new Win32Exception();
             }
             ShowWindow(window, WindowShowStyle.SW_SHOWDEFAULT);
+            return window;
         }
 
-        private static void MessagePump()
+        private static void MessagePump(IntPtr window)
         {
             MSG msg;
             int bRet;
@@ -69,8 +70,11 @@ namespace ConsoleApplication1
                     throw new Win32Exception();
                 }
 
-                TranslateMessage(&msg);
-                DispatchMessage(&msg);
+                if (!IsDialogMessage(window, &msg))
+                {
+                    TranslateMessage(&msg);
+                    DispatchMessage(&msg);
+                }
             }
         }
 

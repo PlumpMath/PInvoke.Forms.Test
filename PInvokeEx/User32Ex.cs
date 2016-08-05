@@ -370,5 +370,19 @@ namespace ConsoleApplication1
         /// </param>
         [DllImport(nameof(User32), SetLastError = true)]
         public static extern void PostQuitMessage(int nExitCode);
+
+        /// <summary>
+        ///     Determines whether a message is intended for the specified dialog box and, if it is, processes the message.
+        /// </summary>
+        /// <param name="hDlg">A handle to the dialog box.</param>
+        /// <param name="lpMsg">A pointer to an <see cref="MSG" /> structure that contains the message to be checked.</param>
+        /// <returns>
+        ///     If the message has been processed, the return value is nonzero.
+        ///     <para>If the message has not been processed, the return value is zero.</para>
+        /// </returns>
+        [DllImport(nameof(User32))]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool IsDialogMessage(IntPtr hDlg, MSG* lpMsg);
+        
     }
 }
