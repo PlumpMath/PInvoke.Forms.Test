@@ -128,6 +128,7 @@
     <Compile Include="PInvokeEx\SIZE.cs" />
     <Compile Include="PInvokeEx\User32Ex.cs" />
     <Compile Include="PInvokeEx\WindowMessage.cs" />
+    <Compile Include="Win32ErrorCheckExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

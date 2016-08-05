@@ -7,21 +7,11 @@ using static PInvoke.User32;
 
 namespace ConsoleApplication1
 {
-    public static class Win32ErrorCheckExtensions
-    {
-        public static IntPtr Win32ThrowIfZero(this IntPtr ptr)
-        {
-            if (ptr == IntPtr.Zero)
-            {
-                throw new Win32Exception();
-            }
-
-            return ptr;
-        }
-    }
-
     internal unsafe class Program
     {
+        /// <summary>
+        /// From Raymond Chen blog : https://blogs.msdn.microsoft.com/oldnewthing/20050329-00/?p=36043
+        /// </summary>
         private static IntPtr CreateDialogParam(
             SafeLibraryHandle hinst,
             int iTemplate,
@@ -42,7 +32,7 @@ namespace ConsoleApplication1
                 dwInitParam);
         }
 
-        private static void Main(string[] args)
+        private static void Main()
         {
             var window = CreateAndShowDialog();
             MessagePump(window);
@@ -50,11 +40,7 @@ namespace ConsoleApplication1
 
         private static IntPtr CreateAndShowDialog()
         {
-            var window = CreateDialogParam(SafeLibraryHandle.Null, 101, IntPtr.Zero, LpDlgProc, IntPtr.Zero);
-            if (window == IntPtr.Zero)
-            {
-                throw new Win32Exception();
-            }
+            var window = CreateDialogParam(SafeLibraryHandle.Null, 101, IntPtr.Zero, LpDlgProc, IntPtr.Zero).Win32ThrowIfZero();
             ShowWindow(window, WindowShowStyle.SW_SHOWDEFAULT);
             return window;
         }
