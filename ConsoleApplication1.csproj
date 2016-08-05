@@ -117,6 +117,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DLGITEMTEMPLATE.cs" />
     <Compile Include="DLGTEMPLATE.cs" />
     <Compile Include="MSG.cs" />
     <Compile Include="PeekMessageRemoveFlags.cs" />

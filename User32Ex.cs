@@ -1,17 +1,79 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using PInvoke;
+using static PInvoke.Kernel32;
 using static PInvoke.User32;
 
 namespace ConsoleApplication1
 {
     internal static unsafe class User32Ex
     {
+        /// <summary>
+        ///     Application-defined callback function used with the CreateDialog and DialogBox families of functions. It processes
+        ///     messages sent to a modal or modeless dialog box.
+        /// </summary>
+        /// <param name="hwndDlg">A handle to the dialog box.</param>
+        /// <param name="uMsg">The message.</param>
+        /// <param name="wParam">Additional message-specific information.</param>
+        /// <param name="lParam">Additional message-specific information.</param>
+        /// <returns>
+        ///     Typically, the dialog box procedure should return TRUE if it processed the message, and FALSE if it did not. If the
+        ///     dialog box procedure returns FALSE, the dialog manager performs the default dialog operation in response to the
+        ///     message.
+        ///     <para>
+        ///         If the dialog box procedure processes a message that requires a specific return value, the dialog box
+        ///         procedure should set the desired return value by calling <see cref="SetWindowLong" /> with
+        ///         <see cref="WindowLongIndexFlags.DWLP_MSGRESULT" /> immediately before returning TRUE. Note that you must call
+        ///         SetWindowLong immediately before returning TRUE; doing so earlier may result in the
+        ///         <see cref="WindowLongIndexFlags.DWLP_MSGRESULT" /> value being overwritten by a nested dialog box message.
+        ///     </para>
+        /// </returns>
         public delegate IntPtr DialogProc(IntPtr hwndDlg, WindowMessage uMsg, IntPtr wParam, IntPtr lParam);
 
+        /// <summary>
+        ///     Creates a modeless dialog box from a dialog box template in memory. Before displaying the dialog box, the function
+        ///     passes an application-defined value to the dialog box procedure as the lParam parameter of the
+        ///     <see cref="WindowMessage.WM_INITDIALOG" /> message. An application can use this value to initialize dialog box
+        ///     controls.
+        /// </summary>
+        /// <param name="hInstance">
+        ///     A handle to the module which contains the dialog box template. If this parameter is
+        ///     <see cref="SafeLibraryHandle.Null" />, then the current executable is used.
+        /// </param>
+        /// <param name="lpTemplate">
+        ///     The template CreateDialogIndirectParam uses to create the dialog box. A dialog box template consists of a header
+        ///     that describes the dialog box, followed by one or more additional blocks of data that describe each of the controls
+        ///     in the dialog box. The template can use either the standard format or the extended format.
+        ///     <para>
+        ///         In a standard template, the header is a <see cref="DLGTEMPLATE" /> structure followed by additional
+        ///         variable-length arrays. The data for each control consists of a <see cref="DLGITEMTEMPLATE" /> structure
+        ///         followed by additional variable-length arrays.
+        ///     </para>
+        ///     <para>
+        ///         In an extended dialog box template, the header uses the DLGTEMPLATEEX format and the control definitions use
+        ///         the DLGITEMTEMPLATEEX format.
+        ///     </para>
+        ///     <para>
+        ///         After CreateDialogIndirectParam returns, you can free the template, which is only used to get the dialog box
+        ///         started.
+        ///     </para>
+        /// </param>
+        /// <param name="hWndParent">A handle to the window that owns the dialog box.</param>
+        /// <param name="lpDialogFunc">A pointer to the dialog box procedure.</param>
+        /// <param name="lParamInit">
+        ///     The value to pass to the dialog box in the lParam parameter of the
+        ///     <see cref="WindowMessage.WM_INITDIALOG" /> message.
+        /// </param>
+        /// <returns>
+        ///     If the function succeeds, the return value is the window handle to the dialog box.
+        ///     <para>
+        ///         If the function fails, the return value is <see cref="IntPtr.Zero" />. To get extended error information,
+        ///         call <see cref="GetLastError" />.
+        ///     </para>
+        /// </returns>
         [DllImport(nameof(User32), SetLastError = true)]
         public static extern IntPtr CreateDialogIndirectParam(
-            Kernel32.SafeLibraryHandle hInstance,
+            SafeLibraryHandle hInstance,
             DLGTEMPLATE* lpTemplate,
             IntPtr hWndParent,
             DialogProc lpDialogFunc,
@@ -69,7 +131,7 @@ namespace ConsoleApplication1
         ///     <para>
         ///         If there is an error, the return value is -1. For example, the function fails if <paramref name="hWnd" /> is
         ///         an invalid window handle or <paramref name="lpMsg" /> is an invalid pointer. To get extended error information,
-        ///         call <see cref="Kernel32.GetLastError" />.
+        ///         call <see cref="GetLastError" />.
         ///     </para>
         /// </returns>
         [DllImport(nameof(User32), SetLastError = true)]
@@ -134,6 +196,97 @@ namespace ConsoleApplication1
             WindowMessage wMsgFilterMin,
             WindowMessage wMsgFilterMax,
             PeekMessageRemoveFlags wRemoveMsg);
+
+        /// <summary>
+        ///     Posts a message to the message queue of the specified thread. It returns without waiting for the thread to process
+        ///     the message.
+        /// </summary>
+        /// <param name="idThread">
+        ///     The identifier of the thread to which the message is to be posted.
+        ///     <para>
+        ///         The function fails if the specified thread does not have a message queue. The system creates a thread's
+        ///         message queue when the thread makes its first call to one of the User or GDI functions.
+        ///     </para>
+        ///     <para>
+        ///         Message posting is subject to UIPI. The thread of a process can post messages only to posted-message queues
+        ///         of threads in processes of lesser or equal integrity level.
+        ///     </para>
+        ///     <para>
+        ///         This thread must have the SE_TCB_NAME privilege to post a message to a thread that belongs to a process with
+        ///         the same locally unique identifier (LUID) but is in a different desktop. Otherwise, the function fails and
+        ///         returns <see cref="Win32ErrorCode.ERROR_INVALID_THREAD_ID" />.
+        ///     </para>
+        ///     <para>
+        ///         This thread must either belong to the same desktop as the calling thread or to a process with the same LUID.
+        ///         Otherwise, the function fails and returns <see cref="Win32ErrorCode.ERROR_INVALID_THREAD_ID" />.
+        ///     </para>
+        /// </param>
+        /// <param name="Msg">The type of message to be posted.</param>
+        /// <param name="wParam">Additional message-specific information.</param>
+        /// <param name="lParam">Additional message-specific information.</param>
+        /// <returns>
+        ///     If the function succeeds, the return value is nonzero.
+        ///     <para>
+        ///         If the function fails, the return value is zero. To get extended error information, call
+        ///         <see cref="GetLastError" />. GetLastError returns
+        ///         <see cref="Win32ErrorCode.ERROR_INVALID_THREAD_ID" /> if idThread is not a valid thread identifier, or if the
+        ///         thread specified by idThread does not have a message queue. GetLastError returns
+        ///         <see cref="Win32ErrorCode.ERROR_NOT_ENOUGH_QUOTA" /> when the message limit is hit.
+        ///     </para>
+        /// </returns>
+        [DllImport(nameof(User32), SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool PostThreadMessage(
+            int idThread,
+            WindowMessage Msg,
+            IntPtr wParam,
+            IntPtr lParam);
+
+        public static readonly IntPtr HWND_BROADCAST = (IntPtr) 0xffff;
+
+        /// <summary>
+        ///     Places (posts) a message in the message queue associated with the thread that created the specified window and
+        ///     returns without waiting for the thread to process the message.
+        ///     <para>
+        ///         To post a message in the message queue associated with a thread, use the <see cref="PostThreadMessage" />
+        ///         function.
+        ///     </para>
+        /// </summary>
+        /// <param name="hWnd">
+        ///     A handle to the window whose window procedure is to receive the message. The following values have special
+        ///     meanings.
+        ///     <para>
+        ///         <see cref="HWND_BROADCAST" />: The message is posted to all top-level windows in the system, including
+        ///         disabled or invisible unowned windows, overlapped windows, and pop-up windows. The message is not posted to
+        ///         child windows.
+        ///     </para>
+        ///     <para>
+        ///         <see cref="IntPtr.Zero" />: The function behaves like a call to <see cref="PostThreadMessage" /> with the
+        ///         dwThreadId parameter set to the identifier of the current thread.
+        ///     </para>
+        ///     <para>
+        ///         Starting with Windows Vista, message posting is subject to UIPI. The thread of a process can post messages
+        ///         only to message queues of threads in processes of lesser or equal integrity level.
+        ///     </para>
+        /// </param>
+        /// <param name="Msg">The type of message to be posted.</param>
+        /// <param name="wParam">Additional message-specific information.</param>
+        /// <param name="lParam">Additional message-specific information.</param>
+        /// <returns>
+        ///     If the function succeeds, the return value is nonzero.
+        ///     <para>
+        ///         If the function fails, the return value is zero. To get extended error information, call
+        ///         <see cref="GetLastError" />. GetLastError returns <see cref="Win32ErrorCode.ERROR_NOT_ENOUGH_QUOTA" />
+        ///         when the limit is hit.
+        ///     </para>
+        /// </returns>
+        [DllImport(nameof(User32), SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool PostMessage(
+            IntPtr hWnd,
+            WindowMessage Msg,
+            IntPtr wParam,
+            IntPtr lParam);
 
         /// <summary>
         ///     Calls the default window procedure to provide default processing for any window messages that an application does
