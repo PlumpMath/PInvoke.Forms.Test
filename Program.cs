@@ -9,6 +9,8 @@ namespace ConsoleApplication1
 {
     internal unsafe class Program
     {
+        private static DialogProc LpDlgProc = DlgProc;
+
         /// <summary>
         /// From Raymond Chen blog : https://blogs.msdn.microsoft.com/oldnewthing/20050329-00/?p=36043
         /// </summary>
@@ -66,7 +68,7 @@ namespace ConsoleApplication1
 
         static readonly IntPtr TRUE = (IntPtr)1;
 
-        private static IntPtr LpDlgProc(IntPtr hwndDlg, WindowMessage uMsg, IntPtr wParam, IntPtr lParam)
+        private static IntPtr DlgProc(IntPtr hwndDlg, WindowMessage uMsg, IntPtr wParam, IntPtr lParam)
         {
             switch (uMsg)
             {
